@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Management System</title>
+</head>
+<body>
+    <h2>Hospital Management & Treatment System</h2>
+    <p>The interactive prompt menu will open automatically. If closed, please refresh the page.</p>
+
+    <script>
+        // Sample Doctors Database
+        var doctors = [
+            { id: 1, name: "Dr. Sharma", specialty: "Cardiologist", fee: 500 },
+            { id: 2, name: "Dr. Patel", specialty: "General Physician", fee: 300 },
+            { id: 3, name: "Dr. Rao", specialty: "Pediatrician", fee: 400 }
+        ];
+
+        // State Variables
+        var registeredPatient = null;
+        var selectedDoctor = null;
+        var appointmentDetails = null;
+        var medicalRecords = ["Initial checkup: Normal vitals", "Previous record: Paracetamol course prescribed last month"];
+        var treatmentCharges = 200; // Standard lab/treatment charges
+        var isPaid = false;
+
+        // 1. Patient Registration
+        function patientRegistration() {
+            var name = prompt("Enter patient full name:");
+            var age = prompt("Enter patient age:");
+            var phone = prompt("Enter contact number:");
+            if (name && age && phone) {
+                registeredPatient = { name: name, age: age, phone: phone };
+                alert("Patient Registered Successfully!\nName: " + name + "\nAge: " + age);
+            } else {
+                alert("Registration failed. Please enter valid details.");
+            }
+        }
+
+        // 2. Doctor Availability
+        function doctorAvailability() {
+            var text = "--- AVAILABLE DOCTORS ---\n";
+            for (var i = 0; i < doctors.length; i++) {
+                text += doctors[i].id + ". " + doctors[i].name + " (" + doctors[i].specialty + ") - Fee: ₹" + doctors[i].fee + "\n";
+            }
+            alert(text);
+        }
+
+        // 3. Appointment Booking
+        function appointmentBooking() {
+            if (!registeredPatient) {
+                alert("Please register the patient first (Option 1).");
+                return;
+            }
+            doctorAvailability();
+            var idInput = parseInt(prompt("Enter Doctor ID to book appointment:"));
+            var doc = null;
+            for (var i = 0; i < doctors.length; i++) {
+                if (doctors[i].id === idInput) {
+                    doc = doctors[i];
+                    break;
+                }
+            }
+
+            if (doc) {
+                var date = prompt("Enter appointment date (e.g., Nov 18, 2026):");
+                var time = prompt("Enter time slot (e.g., 10:30 AM):");
+                selectedDoctor = doc;
+                appointmentDetails = { doctor: doc.name, date: date, time: time };
+                alert("Appointment booked successfully with " + doc.name + " on " + date + " at " + time + ".");
+            } else {
+                alert("Invalid Doctor ID.");
+            }
+        }
+
+        // 4. Patient History
+        function patientHistory() {
+            if (!registeredPatient) {
+                alert("No patient registered yet.");
+                return;
+            }
+            var text = "--- MEDICAL HISTORY FOR " + registeredPatient.name.toUpperCase() + " ---\n";
+            for (var i = 0; i < medicalRecords.length; i++) {
+                text += (i + 1) + ". " + medicalRecords[i] + "\n";
+            }
+            alert(text);
+        }
+
+        // 5. Generate Prescription
+        function generatePrescription() {
+            if (!selectedDoctor) {
+                alert("No doctor consultation booked yet. Please book an appointment first.");
+                return;
+            }
+            var meds = prompt("Enter prescribed medicines and dosage instructions:");
+            if (meds) {
+                medicalRecords.push("Prescription (" + selectedDoctor.name + "): " + meds);
+                alert("Prescription generated successfully:\n" + meds);
+            } else {
+                alert("No prescription entered.");
+            }
+        }
+
+        // 6. Generate Bill
+        function generateBill() {
+            if (!selectedDoctor) {
+                alert("No doctor consultation or treatment recorded yet.");
+                return 0;
+            }
+            var consultationFee = selectedDoctor.fee;
+            var totalBill = consultationFee + treatmentCharges;
+
+            var billText = "--- HOSPITAL BILL SUMMARY ---\n" +
+                "Patient Name : " + (registeredPatient ? registeredPatient.name : "N/A") + "\n" +
+                "Consultation (" + selectedDoctor.name + ") : ₹" + consultationFee + "\n" +
+                "Treatment / Labs Charges    : ₹" + treatmentCharges + "\n" +
+                "---------------------------------------\n" +
+                "Total Payable Amount        : ₹" + totalBill;
+            alert(billText);
+            return totalBill;
+        }
+
+        // 7. Payment
+        function payment() {
+            if (!selectedDoctor) {
+                alert("No bill available to pay.");
+                return;
+            }
+            var total = generateBill();
+            var confirmPay = prompt("Proceed to pay ₹" + total + "? Type 'yes' to confirm:");
+            if (confirmPay && confirmPay.toLowerCase() === "yes") {
+                isPaid = true;
+                alert("Payment successful! Hospital bill cleared.");
+            } else {
+                alert("Payment cancelled.");
+            }
+        }
+
+        // Main Program Execution Loop
+        var running = true;
+        while (running) {
+            var choice = prompt(
+                "=== HOSPITAL MANAGEMENT SYSTEM ===\n" +
+                "1. Patient Registration\n" +
+                "2. Doctor Availability\n" +
+                "3. Appointment Booking\n" +
+                "4. Patient History\n" +
+                "5. Generate Prescription\n" +
+                "6. Generate Bill\n" +
+                "7. Payment\n" +
+                "8. Exit\n\n" +
+                "Enter your choice (1-8):"
+            );
+
+            if (choice === "1") {
+                patientRegistration();
+            } else if (choice === "2") {
+                doctorAvailability();
+            } else if (choice === "3") {
+                appointmentBooking();
+            } else if (choice === "4") {
+                patientHistory();
+            } else if (choice === "5") {
+                generatePrescription();
+            } else if (choice === "6") {
+                generateBill();
+            } else if (choice === "7") {
+                payment();
+            } else if (choice === "8" || choice === null) {
+                alert("Thank you for using the Hospital Management System!");
+                running = false;
+            } else {
+                alert("Invalid choice. Please enter a number between 1 and 8.");
+            }
+        }
+    </script>
+</body>
+</html>
