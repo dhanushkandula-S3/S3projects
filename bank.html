@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank ATM</title>
+</head>
+<body>
+<h2>Bank ATM</h2>
+<p>Dialogs open automatically. Refresh the page to start again.</p>
+<script>
+    var customer = [
+        { accno: 123, pass: "sai123",   name: "Sai",   acc_type: "Saving",  address: "Hyderabad",    balance: 500, transactions: [] },
+        { accno: 124, pass: "Ravi123",  name: "Ravi",  acc_type: "Current", address: "Secunderabad", balance: 700, transactions: [] },
+        { accno: 125, pass: "Kiran123", name: "Kiran", acc_type: "Saving",  address: "Kukatpally",   balance: 800, transactions: [] }
+    ];
+
+    // ARROW: concise body, find() replaces the for loop, "|| null" turns undefined into null
+    const login = (accountno, password) =>
+        customer.find(c => String(c.accno) === accountno && c.pass === password) || null;
+
+    // ARROW: one expression, so no braces and no return
+    const checkBalance = (c) => alert("Balance: " + c.balance);
+
+    // ARROW: block body (several statements), so braces and return are needed
+    const deposit = (c) => {
+        const amount = prompt("Enter the amount to deposit:");
+        if (amount === null) { return; }
+        const depositAmount = Number(amount);
+        if (!Number.isFinite(depositAmount) || depositAmount <= 0) {
+            alert("Enter a deposit amount greater than zero.");
+            return;
+        }
+        c.balance += depositAmount;
+        c.transactions.push("Deposit: " + depositAmount);
+        alert("Deposit successful. New balance: " + c.balance);
+    };
+
+    // ARROW: block body
+    const withdraw = (c) => {
+        const amount = prompt("Enter the amount to withdraw:");
+        if (amount === null) { return; }
+        const withdrawAmount = Number(amount);
+        if (!Number.isFinite(withdrawAmount) || withdrawAmount <= 0) {
+            alert("Enter a withdrawal amount greater than zero.");
+            return;
+        }
+        if (withdrawAmount > c.balance) {
+            alert("Insufficient balance. Current balance: " + c.balance);
+            return;
+        }
+        c.balance -= withdrawAmount;
+        c.transactions.push("Withdrawal: " + withdrawAmount);
+        alert("Withdrawal successful. New balance: " + c.balance);
+    };
+
+    // REGULAR function kept for comparison; only its find() callback is an arrow
+    function fundtransfer(c) {
+        var recipientAccNo = prompt("Enter the recipient's account number:");
+        if (recipientAccNo === null) { return; }
+        var recipient = customer.find(cust => String(cust.accno) === recipientAccNo);
+        if (!recipient) {
+            alert("Recipient account not found.");
+            return;
+        }
+        var amount = prompt("Enter the amount to transfer:");
+        if (amount === null) { return; }
+        var transferAmount = Number(amount);
+        if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
+            alert("Enter a transfer amount greater than zero.");
+            return;
+        }
+        if (transferAmount > c.balance) {
+            alert("Insufficient balance. Current balance: " + c.balance);
+            return;
+        }
+        c.balance -= transferAmount;
+        recipient.balance += transferAmount;
+        c.transactions.push("Fund Transfer to " + recipientAccNo + ": " + transferAmount);
+        alert("Transfer successful. New balance: " + c.balance);
+    }
+
+    // REGULAR function
+    function ministatement(c) {
+        if (c.transactions.length === 0) {
+            alert("No transactions found.");
+            return;
+        }
+        alert("Mini Statement:\n" + c.transactions.join("\n"));
+    }
+
+    // REGULAR function: returns true to keep going, false to end the session
+    function handleAction(c) {
+        var action = prompt(
+            "Choose an action:\n1. Check balance\n2. Deposit\n3. Withdraw\n" +
+            "4. Fund Transfer\n5. Mini Statement\n6. Logout"
+        );
+
+        switch (action) {
+            case "1": checkBalance(c);  return true;
+            case "2": deposit(c);       return true;
+            case "3": withdraw(c);      return true;
+            case "4": fundtransfer(c);  return true;
+            case "5": ministatement(c); return true;
+            case "6":
+            case null:
+                alert("Logged out. Thank you!");
+                return false;
+            default:
+                alert("Invalid action. Enter 1, 2, 3, 4, 5, or 6.");
+                return true;
+        }
+    }
+
+    // Main flow: log in once, then repeat the menu until logout.
+    var accountno = prompt("Enter the account number:");
+    if (accountno !== null) {
+        var password = prompt("Enter the password:");
+        if (password !== null) {
+            var loggedInCustomer = login(accountno, password);
+            if (loggedInCustomer) {
+                alert("Login successful. Welcome, " + loggedInCustomer.name + "!");
+                var running = true;
+                while (running) {
+                    running = handleAction(loggedInCustomer);
+                }
+            } else {
+                alert("Account number or password not found.");
+            }
+        }
+    }
+</script>
+</body>
+</html>
