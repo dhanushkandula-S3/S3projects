@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JS Only Todo List</title>
+</head>
+<body>
+  <script>
+    const STORAGE_KEY = "jsOnlyTodos";
+
+    // Build basic page layout with JavaScript
+    document.body.style.fontFamily = "sans-serif";
+    document.body.style.maxWidth = "460px";
+    document.body.style.margin = "40px auto";
+    document.body.style.padding = "0 16px";
+
+    const heading = document.createElement("h1");
+    heading.textContent = "Todo List";
+
+    const form = document.createElement("form");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Enter a todo...";
+    input.style.padding = "8px";
+    input.style.marginRight = "8px";
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "submit";
+    addBtn.textContent = "Add";
+    addBtn.style.padding = "8px 12px";
+
+    const list = document.createElement("ul");
+    list.style.listStyle = "none";
+    list.style.padding = "0";
+    list.style.marginTop = "16px";
+
+    form.appendChild(input);
+    form.appendChild(addBtn);
+    document.body.appendChild(heading);
+    document.body.appendChild(form);
+    document.body.appendChild(list);
+
+    // Load saved todos from localStorage
+    let todos = [];
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      todos = JSON.parse(savedData);
+    }
+
+    function saveTodos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    }
+
+    function renderTodos() {
+      list.innerHTML = "";
+
+      for (let i = 0; i < todos.length; i++) {
+        const todo = todos[i];
+
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.alignItems = "center";
+        li.style.gap = "8px";
+        li.style.marginBottom = "8px";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = todo.completed;
+
+        const span = document.createElement("span");
+        span.textContent = todo.text;
+        span.style.flex = "1";
+        if (todo.completed) {
+          span.style.textDecoration = "line-through";
+          span.style.color = "#777";
+        }
+
+        checkbox.addEventListener("change", function () {
+          todo.completed = checkbox.checked;
+          saveTodos();
+          renderTodos();
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "Delete";
+
+        deleteBtn.addEventListener("click", function () {
+          todos.splice(i, 1);
+          saveTodos();
+          renderTodos();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(deleteBtn);
+        list.appendChild(li);
+      }
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const text = input.value.trim();
+      if (text === "") {
+        return;
+      }
+
+      todos.push({
+        text: text,
+        completed: false
+      });
+
+      saveTodos();
+      renderTodos();
+
+      input.value = "";
+      input.focus();
+    });
+
+    renderTodos();
+  </script>
+</body>
+</html>
